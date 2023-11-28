@@ -121,7 +121,9 @@ const Register = () => {
                                 Sign Up
                             </Button>
                     </form>
-                    <Link href={"/login"}>Login</Link>
+                    <p className="text-sm font-light text-gray-500">
+                      Already have an account? <Link href="/sign-in" className="font-medium hover:underline">Login here</Link>
+                    </p>
                 </>
             )}
             {pendingVerification && (

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, useState } from 'react'
 import CustomInput from './CustomInput';
 import { Button } from './ui/button';
+import toast from 'react-hot-toast';
+
 
 const Login = () => {
     const { isLoaded, signIn } = useSignIn();
@@ -26,6 +28,7 @@ const Login = () => {
             });
             router.push("/")
             if (completeSignIn.status === 'complete') {
+                toast.success("Successfully login")
                 router.push("/")
             }else{
                 console.log(JSON.stringify(completeSignIn, null, 2));
@@ -70,7 +73,9 @@ const Login = () => {
                         Login
                 </Button>
             </form>
-            <Link href={"/register"}>Sign up</Link>
+            <p className="text-sm font-light text-gray-500">
+                Don’t have an account yet? <Link href="/sign-up" className="font-medium hover:underline">Sign up</Link>
+            </p>
         </div>
     </React.Fragment>
   )
