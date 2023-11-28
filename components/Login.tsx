@@ -1,7 +1,7 @@
 "use client"
 import { useSignIn } from '@clerk/nextjs';
 import Link from 'next/link';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, useState } from 'react'
 import CustomInput from './CustomInput';
 import { Button } from './ui/button';
@@ -24,6 +24,7 @@ const Login = () => {
                 identifier: email,
                 password
             });
+            router.push("/")
             if (completeSignIn.status === 'complete') {
                 router.push("/")
             }else{

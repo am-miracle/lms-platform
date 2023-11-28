@@ -1,8 +1,8 @@
 "use client"
+import React, { ChangeEvent, useState } from 'react'
 import { useSignUp} from '@clerk/nextjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { ChangeEvent, MouseEventHandler, useState } from 'react'
 import CustomInput from './CustomInput';
 import { Button } from './ui/button';
 
@@ -53,9 +53,9 @@ const Register = () => {
         const completeSignUp = await signUp.attemptEmailAddressVerification({
             code,
         });
-        if (completeSignUp.status !== 'complete') {
+        if (completeSignUp.status === 'complete') {
             await setActive({ session: completeSignUp.createdSessionId });
-            router.push('/sign-in');
+            router.push('/');
         } else{
             /*  investigate the response, to see if there was an error
                 or if the user needs to complete more steps.*/
