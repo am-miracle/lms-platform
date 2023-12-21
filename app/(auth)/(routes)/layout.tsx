@@ -1,4 +1,4 @@
-import React from 'react'
+import ToastProvider from '@/components/providers/ToastProvider'
 
 type TProps = {
     children: React.ReactNode
@@ -7,6 +7,7 @@ type TProps = {
 const AuthLayout = ({children}: TProps) => {
   return (
     <div className="flex min-h-screen items-center justify-center">
+      <ToastProvider />
         {children}
     </div>
   )

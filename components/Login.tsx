@@ -1,42 +1,62 @@
 "use client"
+import React from 'react'
 import { useSignIn } from '@clerk/nextjs';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import React, { ChangeEvent, useState } from 'react'
-import CustomInput from './CustomInput';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from './ui/button';
 import toast from 'react-hot-toast';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './ui/form';
+import { Input } from './ui/input';
 
+const schema = z.object({
+    email: z.string().min(1, {
+        message: "Invalid email",
+    }),
+    password: z.string().min(1, {
+        message: "Invalid password",
+    }),
+});
 
 const Login = () => {
-    const { isLoaded, signIn } = useSignIn();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const { isLoaded, signIn, setActive } = useSignIn();
+    const pathname = usePathname()
     const router = useRouter()
 
-    const handleSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const form = useForm<z.infer<typeof schema>>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            email: "",
+            password: ""
+        },
+      })
+      const { isSubmitting } = form.formState;
 
-        if(!isLoaded){
-            return
+      const onSubmit = async (values: z.infer<typeof schema>) => {
+        if (!isLoaded) {
+            return;
         }
         try {
-            console.log(signIn)
             const completeSignIn = await signIn.create({
-                identifier: email,
-                password
+              identifier: values.email,
+              password: values.password,
             });
-            router.push("/")
             if (completeSignIn.status === 'complete') {
-                toast.success("Successfully login")
-                router.push("/")
-            }else{
-                console.log(JSON.stringify(completeSignIn, null, 2));
+                setActive({session: completeSignIn.createdSessionId })
+                toast.success('Successfully logged in');
+                if (pathname?.startsWith("/sign-in")) {
+                    router.push('/');
+                }
             }
-        } catch (error) {
-            console.error(JSON.stringify(error, null, 2));
-        }
-    }
+          } catch (error) {
+            const errorMessage = JSON.stringify(error, null, 2)
+            const parseMessage = JSON.parse(errorMessage)
+            toast.error(parseMessage.errors[0].message);
+          }
+      }
+
   return (
     <React.Fragment>
         <div className="relative flex flex-col rounded-xl bg-transparent
@@ -47,32 +67,53 @@ const Login = () => {
             <p className="mt-1 block font-sans text-base font-normal leading-relaxed text-gray-700 antialiased">
                 Enter your details to Sign in.
             </p>
-            <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96" onSubmit={handleSubmit}>
-                <div className="mb-4 flex flex-col gap-6">
-                    <CustomInput
-                        type='email'
-                        id='email_address'
-                        name='email_address'
-                        label='Email'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-4 mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="Please enter you email"
+                                        {...field}
+                                        disabled={isSubmitting}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
-                    <CustomInput
-                        type='password'
-                        id='password'
-                        name='password'
-                        label='Password'
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Password</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="Please enter you password"
+                                        type='password'
+                                        {...field}
+                                        disabled={isSubmitting}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
                     />
-                </div>
-                <Button
-                    type='submit'
-                    className='w-full'
-                >
+                    <Button
+                        type='submit'
+                        className='w-full'
+                        disabled={isSubmitting}
+                    >
                         Login
-                </Button>
-            </form>
+                    </Button>
+                </form>
+            </Form>
             <p className="text-sm font-light text-gray-500">
                 Don’t have an account yet? <Link href="/sign-up" className="font-medium hover:underline">Sign up</Link>
             </p>
