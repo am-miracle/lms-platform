@@ -22,8 +22,8 @@ const schema = z.object({
 
 const Login = () => {
     const { isLoaded, signIn, setActive } = useSignIn();
-    const pathname = usePathname()
-    const router = useRouter()
+    const pathname = usePathname();
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof schema>>({
         resolver: zodResolver(schema),
@@ -39,6 +39,7 @@ const Login = () => {
             return;
         }
         try {
+            console.log(signIn)
             const completeSignIn = await signIn.create({
               identifier: values.email,
               password: values.password,

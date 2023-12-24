@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import CustomInput from './CustomInput';
 import { Button } from './ui/button';
+import toast from 'react-hot-toast';
 
 
 const Register = () => {
@@ -38,7 +39,9 @@ const Register = () => {
             // change the UI to our pending section.
             setPendingVerification(true);
         } catch (err) {
-            console.error(JSON.stringify(err, null, 2));
+            const errorMessage = JSON.stringify(err, null, 2)
+            const parseMessage = JSON.parse(errorMessage)
+            toast.error(parseMessage.errors[0].message);
         }
     };
 
@@ -59,11 +62,15 @@ const Register = () => {
         } else{
             /*  investigate the response, to see if there was an error
                 or if the user needs to complete more steps.*/
-            console.log(JSON.stringify(completeSignUp, null, 2));
+            const errorMessage = JSON.stringify(completeSignUp, null, 2)
+            const parseMessage = JSON.parse(errorMessage)
+            toast.error(parseMessage.errors[0].message);
         }
 
     } catch (err) {
-        console.error(JSON.stringify(err, null, 2));
+        const errorMessage = JSON.stringify(err, null, 2)
+        const parseMessage = JSON.parse(errorMessage)
+        toast.error(parseMessage.errors[0].message);
     }
   };
 
