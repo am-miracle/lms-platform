@@ -1,52 +1,46 @@
-"use client"
-import { Button } from '@/components/ui/button';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Course } from '@prisma/client'
-import axios from 'axios';
-import { ImageIcon, Pencil, PlusCircle } from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
+"use client";
+
 import * as z from "zod";
+import axios from "axios";
+import { Pencil, PlusCircle, ImageIcon } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { Course } from "@prisma/client";
+import Image from "next/image";
+
+import { Button } from "@/components/ui/button";
+import { FileUpload } from "@/components/file-upload";
 
 type ImageFormProps = {
-  initialData: Course;
-  courseId: string
-}
+  initialData: Course
+  courseId: string;
+};
 
 const formSchema = z.object({
   imageUrl: z.string().min(1, {
     message: "Image is required",
-  })
-})
+  }),
+});
 
-const ImageForm = ({
+export const ImageForm = ({
   initialData,
   courseId
 }: ImageFormProps) => {
-  const router = useRouter()
   const [isEditing, setIsEditing] = useState(false);
 
-  const toggleEdit = () => setIsEditing(current => !current);
+  const toggleEdit = () => setIsEditing((current) => !current);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      imageUrl: initialData?.imageUrl || ""
-    }
-  })
+  const router = useRouter();
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await axios.patch(`/api/courses/${courseId}`, values)
-      toast.success("Course Updated")
-      toggleEdit()
-
-      router.refresh()
-    } catch (error) {
-      
+      await axios.patch(`/api/courses/${courseId}`, values);
+      toast.success("Course updated");
+      toggleEdit();
+      router.refresh();
+    } catch {
+      toast.error("Something went wrong");
     }
   }
 
@@ -106,5 +100,3 @@ const ImageForm = ({
     </div>
   )
 }
-
-export default ImageForm
