@@ -34,12 +34,11 @@ const Login = () => {
       })
       const { isSubmitting } = form.formState;
 
-      const onSubmit = async (values: z.infer<typeof schema>) => {
+    const onSubmit = async (values: z.infer<typeof schema>) => {
         if (!isLoaded) {
             return;
         }
         try {
-            console.log(signIn)
             const completeSignIn = await signIn.create({
               identifier: values.email,
               password: values.password,
