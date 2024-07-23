@@ -1,25 +1,21 @@
 "use client"
-import { Button } from '@/components/ui/button';
-import { FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
+import React, { useState } from 'react'
+import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Course } from '@prisma/client';
+import { cn } from '@/lib/utils';
 import axios from 'axios';
 import { Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react'
-import { Form, useForm } from 'react-hook-form';
+import {  useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
-import * as zod from 'zod';
+import { DescriptionFormProps } from '@/types/course';
 
-type DescriptionFormProps = {
-  initialData: Course;
-  courseId: string
-}
 
-const formSchema = zod.z.object({
-  description: zod.z.string().min(1, {
+const formSchema = z.object({
+  description: z.string().min(1, {
     message: "Description is required"
   })
 })
@@ -32,7 +28,7 @@ const DescriptionForm = ({
 
   const toggleEdit = () => setIsEditing(current => !current)
 
-  const form = useForm<zod.z.infer<typeof formSchema>>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       description: initialData?.description || ""
@@ -41,7 +37,7 @@ const DescriptionForm = ({
 
   const {isSubmitting, isValid} = form.formState
 
-  const onSubmit = async (values: zod.z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(`/api/courses/${courseId}`, values)
       toast.success("Course Updated!")

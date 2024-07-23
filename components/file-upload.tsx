@@ -7,11 +7,13 @@ import { ourFileRouter } from "@/app/api/uploadthing/core";
 type FileUploadProps = {
   onChange: (url?: string) => void;
   endpoint: keyof typeof ourFileRouter;
+  isSubmitting: boolean;
 };
 
 export const FileUpload = ({
   onChange,
-  endpoint
+  endpoint,
+  isSubmitting
 }: FileUploadProps) => {
   return (
     <UploadDropzone
@@ -22,6 +24,8 @@ export const FileUpload = ({
       onUploadError={(error: Error) => {
         toast.error(`${error?.message}`);
       }}
+      skipPolling={true}
+      disabled={isSubmitting}
     />
   )
 }

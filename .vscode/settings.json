@@ -4,7 +4,7 @@
     "WillLuke.nextjs.hasPrompted": true,
     // "editor.formatOnSave": true,
     // "editor.formatOnPaste": true,
-      "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnType": false, // required
   "editor.formatOnPaste": true, // optional
   "editor.formatOnSave": true, // optional

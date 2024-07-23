@@ -1,6 +1,6 @@
 "use client";
 
-import * as z from "zod";
+import z from "zod";
 import axios from "axios";
 import { Pencil, PlusCircle, ImageIcon } from "lucide-react";
 import { useState } from "react";
@@ -11,11 +11,11 @@ import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { FileUpload } from "@/components/file-upload";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { boolean } from 'zod';
+import { ImageFormProps } from "@/types/course";
 
-type ImageFormProps = {
-  initialData: Course
-  courseId: string;
-};
 
 const formSchema = z.object({
   imageUrl: z.string().min(1, {
@@ -32,6 +32,15 @@ export const ImageForm = ({
   const toggleEdit = () => setIsEditing((current) => !current);
 
   const router = useRouter();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      imageUrl: initialData?.imageUrl || "",
+    },
+  });
+
+  const { isSubmitting } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -77,6 +86,7 @@ export const ImageForm = ({
               alt="Upload"
               fill
               className="object-cover rounded-md"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               src={initialData.imageUrl}
             />
           </div>
@@ -91,6 +101,7 @@ export const ImageForm = ({
                 onSubmit({ imageUrl: url });
               }
             }}
+            isSubmitting={isSubmitting}
           />
           <div className="text-xs text-muted-foreground mt-4">
             16:9 aspect ratio recommended
