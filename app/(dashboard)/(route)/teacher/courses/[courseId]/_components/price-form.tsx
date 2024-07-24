@@ -1,15 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { CategoryFormProps } from "@/types/course";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
+import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+import { Pencil } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -17,55 +15,52 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import Combobox from "@/components/ui/combobox";
+import toast from "react-hot-toast";
+import { PriceFormProps } from "@/types/course";
+import { Input } from "@/components/ui/input";
+import { formatPrice } from "@/lib/format";
 
 const formSchema = z.object({
-  categoryId: z.string().min(1),
+  price: z.coerce.number(),
 });
-
-const CategoryForm = ({
-  initialData,
-  courseId,
-  options,
-}: CategoryFormProps) => {
-  const [isEditing, setIsEditing] = useState(false);
+const PriceForm = ({ initialData, courseId }: PriceFormProps) => {
   const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
 
   const toggleEdit = () => setIsEditing((current) => !current);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      categoryId: initialData?.categoryId || "",
+      price: initialData?.price || undefined,
     },
   });
+
   const { isSubmitting, isValid } = form.formState;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await axios.patch(`/api/courses/${courseId}`, values);
-      toast.success("Category Updated!");
-
+      toast.success("Course price Updated!");
       toggleEdit();
+
       router.refresh();
     } catch (error) {
       toast.error("Something went wrong!");
     }
   };
 
-  const selectedOption = options?.find(
-    (option) => option.value === initialData.categoryId
-  );
   return (
     <div className="mt-6 border bg-slate-100 rounded-md p-4">
       <div className="font-medium flex items-center justify-between">
-        Course Category
+        Course Course
         <Button onClick={toggleEdit} variant="ghost">
           {isEditing ? (
             <>Cancel</>
           ) : (
             <>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit category
+              Edit Price
             </>
           )}
         </Button>
@@ -74,10 +69,10 @@ const CategoryForm = ({
         <p
           className={cn(
             "text-sm mt-2",
-            !initialData.categoryId && "text-slate-500 italic"
+            !initialData.price && "text-slate-500 italic"
           )}
         >
-          {selectedOption?.label || "No Category"}
+          {initialData.price ? formatPrice(initialData.price) : "No Price "}
         </p>
       )}
       {isEditing && (
@@ -88,11 +83,17 @@ const CategoryForm = ({
           >
             <FormField
               control={form.control}
-              name="categoryId"
+              name="price"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Combobox options={options} {...field} />
+                    <Input
+                      type="number"
+                      step={0.01}
+                      disabled={isSubmitting}
+                      placeholder="Set course price"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -110,4 +111,4 @@ const CategoryForm = ({
   );
 };
 
-export default CategoryForm;
+export default PriceForm;
