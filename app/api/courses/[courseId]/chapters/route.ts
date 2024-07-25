@@ -2,13 +2,14 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export async function DELETE(
+export async function POST(
   req: Request,
-  { params }: { params: { courseId: string; attachmentId: string } }
+  { params }: { params: { courseId: string } }
 ) {
   try {
-    const { userId } = auth();
-    const { courseId, attachmentId } = params;
+    const { userId }: { userId: string | null } = auth();
+    const { courseId } = params;
+    const { title } = await req.json();
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -25,16 +26,28 @@ export async function DELETE(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const attachment = await db.attachment.delete({
+    const lastChapter = await db.chapter.findFirst({
       where: {
-        id: attachmentId,
+        courseId,
+      },
+      orderBy: {
+        position: "desc",
+      },
+    });
+
+    const newPosition = lastChapter ? lastChapter.position + 1 : 1;
+
+    const chapter = await db.chapter.create({
+      data: {
+        title,
+        position: newPosition,
         courseId,
       },
     });
 
-    return NextResponse.json(attachment);
+    return NextResponse.json(chapter);
   } catch (error) {
-    console.log("ATTACHMENT_ID", error);
+    console.log("CHAPTERS", error);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

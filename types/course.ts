@@ -1,4 +1,4 @@
-import { Attachment, Course } from "@prisma/client";
+import { Attachment, Chapter, Course } from "@prisma/client";
 
 export type TitleFormProps = {
   initialData: {
@@ -31,4 +31,29 @@ export type PriceFormProps = {
 export type AttachmentFormProps = {
   initialData: Course & { attachments: Attachment[] };
   courseId: string;
+};
+
+export type ChaptersFormProps = {
+  initialData: Course & { chapters: Chapter[] };
+  courseId: string;
+};
+
+export type ChaptersListProps = {
+  items: Chapter[];
+  onEdit: (id: string) => void;
+  onReorder: (updateData: { id: string; position: number }[]) => void;
+};
+
+export type ChapterTitleFormProps = {
+  initialData: {
+    title: string;
+  };
+  courseId: string;
+  chapterId: string;
+};
+
+export type ChapterDescriptionFormProps = {
+  initialData: Chapter;
+  courseId: string;
+  chapterId: string;
 };
