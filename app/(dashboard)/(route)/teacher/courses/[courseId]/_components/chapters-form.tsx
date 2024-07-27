@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import toast from "react-hot-toast";
-import { ChaptersFormProps } from "@/types/course";
+import { ChaptersFormProps } from "@/types/chapter";
 import { Input } from "@/components/ui/input";
 import ChaptersList from "./chapters-list";
 
