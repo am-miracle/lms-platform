@@ -6,7 +6,6 @@ import { Trash } from "lucide-react";
 import ConfirmModal from "@/components/confirm-modal";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Router } from "next/router";
 import { useRouter } from "next/navigation";
 
 const ChapterActions = ({
@@ -18,12 +17,38 @@ const ChapterActions = ({
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const onClick = async () => {
+    try {
+      setIsLoading(true);
+      if (isPublished) {
+        await axios.patch(
+          `/api/courses/${courseId}/chapters/${chapterId}/unpublish `
+        );
+        toast.success("Chapter unpublished!");
+        router.refresh();
+      } else {
+        await axios.patch(
+          `/api/courses/${courseId}/chapters/${chapterId}/publish `
+        );
+        toast.success("Chapter published!");
+        router.refresh();
+      }
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong!");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const onDelete = async () => {
     try {
       setIsLoading(true);
       await axios.delete(`/api/courses/${courseId}/chapters/${chapterId}`);
       toast.success("Chapter deleted!");
       router.push(`/teacher/courses/${courseId}`);
+      router.refresh();
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong!");
@@ -35,11 +60,11 @@ const ChapterActions = ({
     <div className="flex items-center gap-x-2">
       <Button
         disabled={disabled || isLoading}
-        onClick={() => {}}
+        onClick={onClick}
         variant={"outline"}
         size={"sm"}
       >
-        {isPublished ? "Publish" : "Unpublished"}
+        {isPublished ? "Unpublished" : "Publish"}
       </Button>
       <ConfirmModal onConfirm={onDelete}>
         <Button size={"sm"} disabled={isLoading}>

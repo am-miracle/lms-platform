@@ -47,7 +47,7 @@ export async function PATCH(
       }
       // Upload new video
       const asset: Mux.Video.Asset = await mux.video.assets.create({
-        input: [{ url: values.videoUrl }],
+        input: values.videoUrl,
         playback_policy: ["public"],
         test: false,
       });
@@ -89,17 +89,37 @@ export async function DELETE(
 
     if (!chapter) return new NextResponse("Chapter not found", { status: 404 });
 
+    if (chapter.videoUrl) {
+      const existingMuxData = await db.muxData.findFirst({
+        where: { chapterId },
+      });
+
+      if (existingMuxData) {
+        // Delete Mux data
+        await mux.video.assets.delete(existingMuxData.assetId);
+        await db.muxData.delete({
+          where: { id: existingMuxData.id },
+        });
+      }
+    }
     // Delete chapter in the database
-    await db.chapter.delete({
-      where: { id: chapterId, courseId },
+    const deletedChapter = await db.chapter.delete({
+      where: { id: chapterId },
     });
 
-    // Delete Mux data associated with this chapter
-    await db.muxData.deleteMany({
-      where: { chapterId },
+    // Unpublish the rest of the course
+    const publishedChaptersInCourse = await db.chapter.findMany({
+      where: { courseId, isPublished: true },
     });
 
-    return new NextResponse("Success", { status: 200 });
+    if (!publishedChaptersInCourse.length) {
+      await db.course.update({
+        where: { id: courseId },
+        data: { isPublished: false },
+      });
+    }
+
+    return NextResponse.json(deletedChapter);
   } catch (error) {
     console.log("CHAPTER_DELETE", error);
     return new NextResponse("Internal error", { status: 500 });
