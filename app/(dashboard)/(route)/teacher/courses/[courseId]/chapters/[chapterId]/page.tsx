@@ -66,7 +66,7 @@ const ChapterIdPage = async ({
                 </span>
               </div>
               <ChapterActions
-                disabled={isComplete}
+                disabled={!isComplete}
                 courseId={courseId}
                 chapterId={chapterId}
                 isPublished={chapter.isPublished}

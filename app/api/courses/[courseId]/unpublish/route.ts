@@ -22,26 +22,14 @@ export async function PATCH(
       return new NextResponse("Course not found", { status: 404 });
     }
 
-    const unpublishChapter = await db.chapter.update({
-      where: { id: chapterId, courseId },
+    const unpublishCourse = await db.course.update({
+      where: { id: courseId, userId },
       data: { isPublished: false },
     });
 
-    // published chapters in course
-    const publishedChaptersInCourse = await db.chapter.findMany({
-      where: { courseId, isPublished: true },
-    });
-
-    if (!publishedChaptersInCourse.length) {
-      await db.course.update({
-        where: { id: courseId },
-        data: { isPublished: false },
-      });
-    }
-
-    return NextResponse.json(unpublishChapter);
+    return NextResponse.json(unpublishCourse);
   } catch (error) {
-    console.log("CHAPTER_UNPUBLISHED", error);
+    console.log("COURSE_UNPUBLISHED", error);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

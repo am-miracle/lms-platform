@@ -14,38 +14,42 @@ export async function PATCH(
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const ownCourse = await db.course.findUnique({
+    const course = await db.course.findUnique({
       where: { id: courseId, userId },
+      include: {
+        chapters: {
+          include: {
+            muxData: true,
+          },
+        },
+      },
     });
 
-    if (!ownCourse) return new NextResponse("Unauthorized", { status: 401 });
+    if (!course) return new NextResponse("Unauthorized", { status: 401 });
 
-    const chapter = await db.chapter.findUnique({
-      where: { id: chapterId, courseId },
-    });
-
-    const muxData = await db.muxData.findUnique({
-      where: { chapterId },
-    });
+    const hasPublishedChapter = course.chapters.some(
+      (chapter) => chapter.isPublished
+    );
 
     if (
-      !chapter ||
-      !muxData ||
-      !chapter?.title ||
-      !chapter?.description ||
-      !chapter?.videoUrl
+      !course?.title ||
+      !course?.description ||
+      !course?.imageUrl ||
+      !course?.categoryId ||
+      !hasPublishedChapter
     ) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    const publishedChapter = await db.chapter.update({
-      where: { id: chapterId, courseId },
+    const publishedCourse = await db.course.update({
+      where: { id: courseId, userId },
+
       data: { isPublished: true },
     });
 
-    return NextResponse.json(publishedChapter);
+    return NextResponse.json(publishedCourse);
   } catch (error) {
-    console.log("CHAPTER_PUBLISH", error);
+    console.log("COURSE_PUBLISH", error);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

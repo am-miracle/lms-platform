@@ -16,7 +16,7 @@ import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { ChapterTitleFormProps } from "@/types/course";
+import { ChapterTitleFormProps } from "@/types/chapter";
 
 const formSchema = z.object({
   title: z.string().min(1),

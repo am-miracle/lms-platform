@@ -32,3 +32,9 @@ export type AttachmentFormProps = {
   initialData: Course & { attachments: Attachment[] };
   courseId: string;
 };
+
+export type ActionsProps = {
+  courseId: string;
+  disabled: boolean;
+  isPublished: boolean;
+};
